@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator</title>
+  <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/bayucodes/assets/logo/adjibayu.png">
+  <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/bayucodes/assets/logo/adjibayu.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      color: #1e2a3e;
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    body.dark-mode {
+      background: #121826;
+      color: #e0e4e8;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 32px;
+      border-bottom: 1px solid #e9edf2;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+    }
+    body.dark-mode .navbar {
+      background-color: rgba(18,24,38,0.92);
+      border-bottom-color: #2a3a3a;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, #14B8A6, #0f8b7a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .darkmode-toggle {
+      background: rgba(20,184,166,0.1);
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #14B8A6;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+    .darkmode-toggle:hover { background: rgba(20,184,166,0.2); transform: scale(1.05); }
+    body.dark-mode .darkmode-toggle { background: rgba(20,184,166,0.2); }
+
+    /* ===== LAYOUT ===== */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 48px 24px 60px;
+    }
+
+    /* ===== PAGE HEADER ===== */
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .page-header .icon-wrap {
+      width: 64px;
+      height: 64px;
+      background: rgba(20,184,166,0.12);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      font-size: 1.8rem;
+      color: #14B8A6;
+    }
+    .page-header h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #0f2c24;
+      margin-bottom: 8px;
+    }
+    body.dark-mode .page-header h1 { color: #e0e4e8; }
+    .page-header p {
+      color: #4b5563;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    body.dark-mode .page-header p { color: #8aa0b0; }
+
+    /* ===== CARD ===== */
+    .card {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      border: 1px solid #eef2ea;
+      margin-bottom: 20px;
+    }
+    body.dark-mode .card {
+      background: #1e2936;
+      border-color: #2d3a4a;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    /* ===== FORM ===== */
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 8px;
+      color: #2d3e42;
+      font-size: 0.9rem;
+    }
+    body.dark-mode .form-group label { color: #cbd5e1; }
+
+    textarea.form-input,
+    input.form-input,
+    select.form-input {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 16px;
+      border: 1px solid #d0e0d0;
+      font-size: 0.95rem;
+      background: #f8faf7;
+      font-family: 'Inter', sans-serif;
+      color: #1e2a3e;
+      transition: 0.2s;
+      appearance: none;
+    }
+    select.form-input { border-radius: 60px; }
+    textarea.form-input { resize: vertical; min-height: 110px; border-radius: 20px; }
+    .form-input:focus {
+      outline: none;
+      border-color: #14B8A6;
+      box-shadow: 0 0 0 3px rgba(20,184,166,0.15);
+    }
+    body.dark-mode .form-input {
+      background: #2d3e42;
+      border-color: #3a5a5a;
+      color: #e0e4e8;
+    }
+    body.dark-mode .form-input::placeholder { color: #8aa0b0; }
+    body.dark-mode .form-input:focus {
+      border-color: #14B8A6;
+      box-shadow: 0 0 0 3px rgba(20,184,166,0.2);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* Warna picker row */
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .color-row input[type="color"] {
+      width: 44px;
+      height: 44px;
+      border: 1px solid #d0e0d0;
+      border-radius: 12px;
+      padding: 3px;
+      cursor: pointer;
+      background: none;
+      flex-shrink: 0;
+    }
+    body.dark-mode .color-row input[type="color"] { border-color: #3a5a5a; }
+    .color-hex {
+      font-size: 0.85rem;
+      font-family: 'Courier New', monospace;
+      color: #4b5563;
+      background: #f0f4f0;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    body.dark-mode .color-hex {
+      color: #cbd5e1;
+      background: #2d3e42;
+    }
+
+    /* ===== TOMBOL GENERATE ===== */
+    .btn-generate {
+      width: 100%;
+      background: #14B8A6;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.2s;
+      margin-top: 8px;
+    }
+    .btn-generate:hover { background: #0f9e8e; transform: translateY(-2px); }
+    .btn-generate:active { transform: translateY(0); }
+
+    /* ===== RESULT ===== */
+    .result-card {
+      display: none;
+      text-align: center;
+    }
+    .result-card.show { display: block; }
+
+    .qr-wrap {
+      display: inline-block;
+      padding: 20px;
+      background: #fff;
+      border-radius: 20px;
+      border: 1px solid #eef2ea;
+      margin-bottom: 20px;
+    }
+    body.dark-mode .qr-wrap {
+      background: #2d3e42;
+      border-color: #3a5a5a;
+    }
+    #qrCanvas { display: block; border-radius: 8px; }
+
+    .char-info {
+      font-size: 0.82rem;
+      color: #8aa0b0;
+      margin-bottom: 20px;
+    }
+
+    /* Tombol aksi download */
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-action {
+      background: none;
+      color: #14B8A6;
+      border: 1.5px solid #14B8A6;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: 0.2s;
+    }
+    .btn-action:hover {
+      background: #14B8A6;
+      color: white;
+      transform: translateY(-2px);
+    }
+    .btn-action:active { transform: translateY(0); }
+
+    /* ===== ERROR ===== */
+    .error-msg {
+      display: none;
+      padding: 12px 18px;
+      border-radius: 16px;
+      background: #fee2e2;
+      color: #991b1b;
+      font-size: 0.9rem;
+      margin-top: 12px;
+      border: 1px solid #fca5a5;
+    }
+    body.dark-mode .error-msg {
+      background: #7f1d1d;
+      color: #fee2e2;
+      border-color: #991b1b;
+    }
+    .error-msg.show { display: flex; align-items: center; gap: 8px; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      text-align: center;
+      padding: 20px 32px;
+      color: #5b6e64;
+      font-size: 0.82rem;
+      border-top: 1px solid #eef2ea;
+    }
+    body.dark-mode footer {
+      color: #8aa0b0;
+      border-top-color: #2a3a3a;
+    }
+    footer a { color: #14B8A6; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">QR Code Generator</div>
+    <button class="darkmode-toggle" id="darkmodeToggle"><i class="fas fa-moon"></i></button>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="icon-wrap"><i class="fas fa-qrcode"></i></div>
+      <h1>Buat QR Code Kamu</h1>
+      <p>Masukkan link, teks, atau data apapun — QR siap di-scan dalam hitungan detik.</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card">
+      <div class="form-group">
+        <label for="qrInput"><i class="fas fa-pen-to-square" style="color:#14B8A6;margin-right:6px;"></i>Teks / URL / Data</label>
+        <textarea class="form-input" id="qrInput" placeholder="Contoh: https://adjibayu.biz.id&#10;atau teks bebas, nama, nomor, dll..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label><i class="fas fa-expand" style="color:#14B8A6;margin-right:6px;"></i>Ukuran QR</label>
+          <select class="form-input" id="qrSize">
+            <option value="180">Kecil (180px)</option>
+            <option value="260" selected>Sedang (260px)</option>
+            <option value="360">Besar (360px)</option>
+            <option value="500">Ekstra Besar (500px)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-shield-halved" style="color:#14B8A6;margin-right:6px;"></i>Koreksi Error</label>
+          <select class="form-input" id="qrEC">
+            <option value="L">Rendah (L)</option>
+            <option value="M" selected>Sedang (M)</option>
+            <option value="Q">Tinggi (Q)</option>
+            <option value="H">Sangat Tinggi (H)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label><i class="fas fa-palette" style="color:#14B8A6;margin-right:6px;"></i>Warna QR</label>
+          <div class="color-row">
+            <input type="color" id="fgColor" value="#000000">
+            <span class="color-hex" id="fgHex">#000000</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-fill-drip" style="color:#14B8A6;margin-right:6px;"></i>Warna Latar</label>
+          <div class="color-row">
+            <input type="color" id="bgColor" value="#ffffff">
+            <span class="color-hex" id="bgHex">#ffffff</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-generate" id="genBtn" onclick="generateQR()">
+        <i class="fas fa-qrcode"></i> Generate QR Code
+      </button>
+
+      <div class="error-msg" id="errMsg">
+        <i class="fas fa-circle-exclamation"></i>
+        <span id="errText">Isi dulu teks atau link yang ingin dibuatkan QR-nya!</span>
+      </div>
+    </div>
+
+    <!-- Result Card -->
+    <div class="card result-card" id="resultCard">
+      <div class="qr-wrap">
+        <canvas id="qrCanvas"></canvas>
+      </div>
+      <div class="char-info" id="charInfo"></div>
+      <div class="btn-group">
+        <button class="btn-action" onclick="downloadQR('png')">
+          <i class="fas fa-download"></i> Download PNG
+        </button>
+        <button class="btn-action" onclick="downloadQR('svg')">
+          <i class="fas fa-file-export"></i> Download SVG
+        </button>
+        <button class="btn-action" id="copyBtn" onclick="copyQR()">
+          <i class="fas fa-copy"></i> Copy Gambar
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Dibuat oleh <a href="https://adjibayu.biz.id" target="_blank">Muhamad Adji Bayu Saputra</a> &nbsp;·&nbsp; QR Generator Tools</p>
+  </footer>
+
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    // ===== DARK MODE =====
+    document.body.classList.add('dark-mode');
+    const dmIcon = document.querySelector('#darkmodeToggle i');
+    dmIcon.classList.replace('fa-moon', 'fa-sun');
+
+    document.getElementById('darkmodeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const ic = document.querySelector('#darkmodeToggle i');
+      if (document.body.classList.contains('dark-mode')) {
+        ic.classList.replace('fa-moon', 'fa-sun');
+      } else {
+        ic.classList.replace('fa-sun', 'fa-moon');
+      }
+    });
+
+    // ===== COLOR PICKER =====
+    document.getElementById('fgColor').addEventListener('input', function () {
+      document.getElementById('fgHex').textContent = this.value.toUpperCase();
+    });
+    document.getElementById('bgColor').addEventListener('input', function () {
+      document.getElementById('bgHex').textContent = this.value.toUpperCase();
+    });
+
+    // Ctrl+Enter shortcut
+    document.getElementById('qrInput').addEventListener('keydown', function (e) {
+      if (e.ctrlKey && e.key === 'Enter') generateQR();
+    });
+
+    // ===== GENERATE =====
+    function generateQR() {
+      const input  = document.getElementById('qrInput').value.trim();
+      const errMsg = document.getElementById('errMsg');
+      const errTxt = document.getElementById('errText');
+      errMsg.classList.remove('show');
+
+      if (!input) {
+        errTxt.textContent = 'Isi dulu teks atau link yang ingin dibuatkan QR-nya!';
+        errMsg.classList.add('show');
+        return;
+      }
+
+      const size = parseInt(document.getElementById('qrSize').value);
+      const ec   = document.getElementById('qrEC').value;
+      const fg   = document.getElementById('fgColor').value;
+      const bg   = document.getElementById('bgColor').value;
+      const ecMap = { L: QRCode.CorrectLevel.L, M: QRCode.CorrectLevel.M, Q: QRCode.CorrectLevel.Q, H: QRCode.CorrectLevel.H };
+
+      const tmp = document.createElement('div');
+      tmp.style.display = 'none';
+      document.body.appendChild(tmp);
+
+      try {
+        new QRCode(tmp, {
+          text: input,
+          width: size,
+          height: size,
+          colorDark: fg,
+          colorLight: bg,
+          correctLevel: ecMap[ec]
+        });
+
+        setTimeout(() => {
+          const src = tmp.querySelector('canvas');
+          if (!src) {
+            errTxt.textContent = 'Gagal membuat QR. Coba lagi.';
+            errMsg.classList.add('show');
+            document.body.removeChild(tmp);
+            return;
+          }
+
+          const dest = document.getElementById('qrCanvas');
+          dest.width  = size;
+          dest.height = size;
+          dest.getContext('2d').drawImage(src, 0, 0);
+          document.body.removeChild(tmp);
+
+          document.getElementById('charInfo').textContent = input.length + ' karakter tersimpan dalam QR code ini';
+          document.getElementById('resultCard').classList.add('show');
+          document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+
+      } catch (e) {
+        if (tmp.parentNode) document.body.removeChild(tmp);
+        errTxt.textContent = 'Data terlalu panjang atau tidak valid. Coba kurangi teksnya.';
+        errMsg.classList.add('show');
+      }
+    }
+
+    // ===== DOWNLOAD =====
+    function downloadQR(type) {
+      const canvas = document.getElementById('qrCanvas');
+      if (type === 'png') {
+        const a = document.createElement('a');
+        a.download = 'qrcode.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      } else {
+        const size = canvas.width;
+        const fg   = document.getElementById('fgColor').value;
+        const bg   = document.getElementById('bgColor').value;
+        const ctx  = canvas.getContext('2d');
+        const img  = ctx.getImageData(0, 0, size, size);
+        let rects  = '';
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const i = (y * size + x) * 4;
+            if (img.data[i] < 128 && img.data[i+1] < 128 && img.data[i+2] < 128) {
+              rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${fg}"/>`;
+            }
+          }
+        }
+        const svg  = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" fill="${bg}"/>${rects}</svg>`;
+        const blob = new Blob([svg], { type: 'image/svg+xml' });
+        const a    = document.createElement('a');
+        a.download = 'qrcode.svg';
+        a.href     = URL.createObjectURL(blob);
+        a.click();
+      }
+    }
+
+    // ===== COPY =====
+    async function copyQR() {
+      const canvas = document.getElementById('qrCanvas');
+      canvas.toBlob(async (blob) => {
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          const btn = document.getElementById('copyBtn');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+          setTimeout(() => btn.innerHTML = orig, 2000);
+        } catch {
+          alert('Browser tidak mendukung copy gambar. Gunakan Download PNG saja.');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
